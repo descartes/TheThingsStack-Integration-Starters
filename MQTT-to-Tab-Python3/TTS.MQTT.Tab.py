@@ -6,7 +6,7 @@ theRegion = "EU1"		# The region you are using
 
 
 
-VER  = "2021-04-27 v1.1"
+VER  = "2021-05-24 v1.2"
 import os, sys, logging, time
 print(os.path.basename(__file__) + " " + VER)
 
@@ -48,6 +48,18 @@ def saveToFile(someJSON):
 	with open(pathNFile, 'a', newline='') as tabFile:
 		fw = csv.writer(tabFile, dialect='excel-tab')
 		fw.writerow([received_at, application_id, device_id, f_port, f_cnt, frm_payload, rssi, snr, data_rate_index, consumed_airtime])
+
+	# Application log
+	pathNFile = application_id + ".txt"
+	print(pathNFile)
+	if (not os.path.isfile(pathNFile)):
+		with open(pathNFile, 'a', newline='') as tabFile:
+			fw = csv.writer(tabFile, dialect='excel-tab')
+			fw.writerow(["received_at", "device_id", "f_port", "f_cnt", "frm_payload", "rssi", "snr", "data_rate_index", "consumed_airtime"])
+	
+	with open(pathNFile, 'a', newline='') as tabFile:
+		fw = csv.writer(tabFile, dialect='excel-tab')
+		fw.writerow([received_at, device_id, f_port, f_cnt, frm_payload, rssi, snr, data_rate_index, consumed_airtime])
 	
 	# Device log
 	pathNFile = application_id + "__" + device_id + ".txt"
@@ -97,9 +109,18 @@ print("Connect")
 # Setup authentication from settings above
 mqttc.username_pw_set(User, Password)
 
+
+# IMPORTANT - this enables the encryption of messages
 mqttc.tls_set()	# default certification authority of the system
 
+#mqttc.tls_set(ca_certs="mqtt-ca.pem") # Use this if you get security errors
+# It loads the TTI security certificate. Download it from their website from this page: 
+# https://www.thethingsnetwork.org/docs/applications/mqtt/api/index.html
+# This is normally required if you are running the script on Windows
+
+
 mqttc.connect(theRegion.lower() + ".cloud.thethings.network", 8883, 60)
+
 
 print("Subscribe")
 mqttc.subscribe("#", 0)	# all device uplinks

@@ -1,6 +1,6 @@
 <?php
 
-$ver  = "2021-02-15 v1.3";
+$ver  = "2021-02-24 v1.4";
 
 ini_set("error_reporting", E_ALL);
 
@@ -53,6 +53,17 @@ if (!file_exists($file)) {	// Put column headers at top of file
 file_put_contents($file, $output, FILE_APPEND | LOCK_EX);
 
 
+// Application log
+$file = $application_id.".txt";
+
+$output = "$received_at\t$device_id\t$f_cnt\t$f_port\t$frm_payload\t$data_rate_index\t$consumed_airtime\t$rssi\t$snr\n";
+
+if (!file_exists($file)) {	// Put column headers at top of file
+	file_put_contents($file, "received_at\tdevice_id\tf_cnt\tf_port\tfrm_payload\tdata_rate_index\tconsumed_airtime\trssi\tsnr\n");
+}
+
+file_put_contents($file, $output, FILE_APPEND | LOCK_EX);
+
 // Device log
 $file = $application_id."__".$device_id.".txt";
 
@@ -66,6 +77,6 @@ file_put_contents($file, $output, FILE_APPEND | LOCK_EX);
 
 
 // The Things Stack doesn't process the response, but this way we can check the script is working via a browser, albeit with complaints about missing JSON
-die($ver);
+die("TTS.Webhook.Tab version: ".$ver);
 
 ?>
