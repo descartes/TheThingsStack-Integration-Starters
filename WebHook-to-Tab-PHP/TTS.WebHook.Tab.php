@@ -1,11 +1,14 @@
 <?php
 
-$ver  = "2021-02-24 v1.4";
+$ver  = "2021-05-26 v1.5";
 
 ini_set("error_reporting", E_ALL);
 
 // Get the incoming information from the raw input
 $data = file_get_contents("php://input");
+if ($data == "") { // So we can check the script is where we expect via a browser
+	die("TTS.Webhook.Tab version: ".$ver);
+}
 
 
 // Save a raw copy of the message in a debug directory (you have to create it)
@@ -27,11 +30,11 @@ $received_at = $json['received_at'];
 
 $uplink_message = $json['uplink_message'];
 	$f_port = $uplink_message['f_port'];
-	$f_cnt = $uplink_message['f_cnt'];
+	$f_cnt = isset($uplink_message['f_cnt']) ? $uplink_message['f_cnt'] : 0;	// Zero & empty values are not included
 	$frm_payload = $uplink_message['frm_payload'];
 	$rssi = $uplink_message['rx_metadata'][0]['rssi'];
 	$snr = $uplink_message['rx_metadata'][0]['snr'];
-	$data_rate_index = $uplink_message['settings']['data_rate_index'];
+	$data_rate_index = isset($uplink_message['settings']['data_rate_index']) ? $uplink_message['settings']['data_rate_index'] : 0;
 	$consumed_airtime = $uplink_message['consumed_airtime'];
 
 
@@ -64,6 +67,7 @@ if (!file_exists($file)) {	// Put column headers at top of file
 
 file_put_contents($file, $output, FILE_APPEND | LOCK_EX);
 
+
 // Device log
 $file = $application_id."__".$device_id.".txt";
 
@@ -74,9 +78,5 @@ if (!file_exists($file)) {	// Put column headers at top of file
 }
 
 file_put_contents($file, $output, FILE_APPEND | LOCK_EX);
-
-
-// The Things Stack doesn't process the response, but this way we can check the script is working via a browser, albeit with complaints about missing JSON
-die("TTS.Webhook.Tab version: ".$ver);
 
 ?>
